@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import TodoForm from './TodoForm';
 import Todo from './Todo';
 
 function TodoList() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = usePersistedState("todos", []);
 
   const addTodo = todo => {
     if (!todo.text || /^\s*$/.test(todo.text)) {
@@ -15,6 +15,16 @@ function TodoList() {
     setTodos(newTodos);
     console.log(...todos);
   };
+
+  function usePersistedState(key, defaultValue) {
+    const [state, setState] = React.useState(
+      () => JSON.parse(localStorage.getItem(key)) || defaultValue
+    );
+    useEffect(() => {
+      localStorage.setItem(key, JSON.stringify(state));
+    }, [key, state]);
+    return [state, setState];
+  }
 
   const updateTodo = (todoId, newValue) => {
     if (!newValue.text || /^\s*$/.test(newValue.text)) {
